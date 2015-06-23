@@ -30,6 +30,5 @@
 (let [f #(+ 10 %)
       g #(* 2 %)
       list-functor (List. [1 2 3])]
-  (= (fmap list-functor (comp  f g))
+  (= (fmap list-functor (comp f g))
      (-> list-functor (fmap g) (fmap f))))
-
