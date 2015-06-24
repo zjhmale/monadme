@@ -10,6 +10,7 @@
 
 ;;clojure中的for就是对给定的范围做笛卡尔积
 
+;;从定义中可以看到<*>其实就是list comprehension
 (defmulti <*> (fn [fs _] (class fs)))
 (defmethod <*> List [fs xs]
   ;;unwraps the functions in fs, applies them to the Functors in xs, wrapping the result in a minimal context
