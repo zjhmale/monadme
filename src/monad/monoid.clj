@@ -1,7 +1,7 @@
 (ns monad.monoid)
 
 ;;Simply put, Monoids describe types containing a binary function and an identity value
-;;monoid有一个不变元 任何这个类型的monoid和这个不变元进行mappend操作都不会改变自身的值
+;;monoid有一个不变元(或者说幺元) 任何这个类型的monoid和这个不变元进行mappend操作都不会改变自身的值
 ;;比如+ *都是mappend, 0 1就是不变元
 
 (def addmempty (+))                                         ;; 0

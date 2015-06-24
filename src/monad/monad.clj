@@ -37,15 +37,13 @@
         (apply-discount-code discount)
         (place))))
 
-(def order {
-            :items         [{:name "Jalapeño sauce" :price 20.0}]
+(def order {:items         [{:name "Jalapeño sauce" :price 20.0}]
             :address       {:country "Australia"}
             :discount-code "XMAS2012"
             :total         20.0
             })
 
-(def another-order {
-                    :items         [{:name "Jalapeño sauce" :price 20.0}]
+(def another-order {:items         [{:name "Jalapeño sauce" :price 20.0}]
                     :address       {:country "Brazil"}
                     :discount-code "HACKERZ"
                     :total         20.0
@@ -160,3 +158,44 @@
 
 (place-order-use-bind order)
 (place-order-use-bind another-order)
+
+;;list monad
+
+;;just read the algo.monads source code
+;;algo.monads提供了自定义monad的能力 只要实现m-result m-bind m-zero m-plus四个函数就可以利用domonad来使用monad的威力
+(def list-monad {:m-result (fn [v] [v])
+                 :m-bind (fn [mv f]
+                         (if (seq mv)
+                           (apply concat (map f mv)) []))})
+
+;;just list comprehension again
+;;由于clojure缺乏type inference的能力(强类型动态语言硬伤)所以在monad的时候必须显式指名monad的类型 而无法通过类型系统自动判断使用哪一个monad
+(domonad list-monad
+  [a [1 2]
+   b [a (- a)]]
+  (* 3 b))
+
+(domonad list-monad
+  [a [1 2]
+   b []]
+  (* 3 b))
+
+(defrecord List [value]
+  Monad
+  (return [context v] (->List v))
+  (>>= [m f]
+    (let [v (:value m)]
+      (if (seq v)
+        (->List (apply concat (map (comp :value f) v)))
+        v)))
+  (>> [ma mb]
+    (>>= ma (fn [_] mb))))
+
+(:value (return (->List nil) (list 1 2 3)))
+;;list comprehension is just a syntax suger of list monad
+
+(:value (>>= (return (->List nil) (list 1 2))
+             (fn [a]
+               (>>= (->List (list a (- a)))
+                    (fn [b]
+                      (return (->List nil) (list (* 3 b))))))))
