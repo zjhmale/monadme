@@ -220,6 +220,7 @@
 
 ;;Associativity 结合律
 ;;Binding m to f and then applying >>= to the result and g should be the same as applying >>= to m and a function of argument x that first applies f to x and then binds it to g.
+;;详细的证明可以使用LC进行推导证明
 
 (let [m (return (->List nil) 3)
       f (fn [x] (->List (list x (- x))))
