@@ -90,7 +90,7 @@
 (:value (let [nest (map ->Any [false false true])]
           (mconcat (->Any false) nest)))
 
-;;monoid law
+;;monoid laws
 
 ;;Identity
 ;;Applying mappend to mempty and a monoid x should be the same as the original x monoid

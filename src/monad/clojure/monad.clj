@@ -182,7 +182,7 @@
 
 (defrecord List [value]
   Monad
-  (return [context v] (->List v))
+  (return [context v] (->List (list v)))
   (>>= [m f]
     (let [v (:value m)]
       (if (seq v)
@@ -191,14 +191,43 @@
   (>> [ma mb]
     (>>= ma (fn [_] mb))))
 
-(:value (return (->List nil) (list 1 2 3)))
+(:value (return (->List nil) 3))
 ;;list comprehension is just a syntax suger of list monad
 
-(:value (>>= (return (->List nil) (list 1 2))
+(:value (>>= (->List (list 1 2))
              (fn [a]
                (>>= (->List (list a (- a)))
                     (fn [b]
-                      (return (->List nil) (list (* 3 b))))))))
+                      (return (->List nil) (* 3 b)))))))
+
+;;monad laws
+
+;;Right unit
+;;Binding a monadic value m to return should be equal to m itself
+
+(let [m (->List (list 1 2 3))]
+  (= m (>>= m
+            (fn [v]
+              (return (->List nil) v)))))
+
+;;Left unit
+;;Applying return to x and then applying >>= to the resulting value and fshould be the same as applying f directly to x
+
+(let [m 3
+      f (fn [x] (->List (list x (- x))))]
+  (= (f m)
+     (>>= (return (->List nil) m) f)))
+
+;;Associativity 结合律
+;;Binding m to f and then applying >>= to the result and g should be the same as applying >>= to m and a function of argument x that first applies f to x and then binds it to g.
+
+(let [m (return (->List nil) 3)
+      f (fn [x] (->List (list x (- x))))
+      g (fn [x] (->List (list (inc x) (dec x))))]
+  (= (>>= (>>= m f) g)
+     (>>= m
+          (fn [x]
+            (>>= (f x) g)))))
 
 ;;monad motivation in real world
 
@@ -222,14 +251,14 @@
 ;;just use monad bind to compose these things
 ;;bind in list monad is just do the list comprehension
 
-(defn >>= [lst fn]
+(defn bind [lst fn]
   (apply concat
          (map fn lst)))
 
 (defn do-bind [lst]
-  (>>= lst
+  (bind lst
        (fn [elem]
-         (>>= (half-double elem)
+         (bind (half-double elem)
               (fn [halfdouble]
                 (inc-int halfdouble))))))
 

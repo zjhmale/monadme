@@ -37,7 +37,7 @@
       xs (List. [1 2 3])]
   (<$> f xs))
 
-;;applicative functor law
+;;applicative functor laws
 
 ;;Identity
 ;;Feeding a function f to pure and applying the resulting Applicative to the Functor v should be the same as directly mapping f over the Functor v
