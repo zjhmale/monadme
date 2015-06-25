@@ -199,3 +199,44 @@
                (>>= (->List (list a (- a)))
                     (fn [b]
                       (return (->List nil) (list (* 3 b))))))))
+
+;;monad motivation in real world
+
+(defn half-double [n]
+  [(/ n 2) (* 2 n)])
+
+(half-double 10)                                            ;;[5 20]
+
+(defn inc-int [n]
+  [(+ 5 n) (+ 10 n)])
+
+(inc-int 3)                                                 ;;[8 13]
+
+(defn do-both [n]
+  (apply concat
+         (map inc-int
+              (half-double n))))
+
+(do-both 8)                                                 ;;'(9 14 21 26)
+
+;;just use monad bind to compose these things
+;;bind in list monad is just do the list comprehension
+
+(defn >>= [lst fn]
+  (apply concat
+         (map fn lst)))
+
+(defn do-bind [lst]
+  (>>= lst
+       (fn [elem]
+         (>>= (half-double elem)
+              (fn [halfdouble]
+                (inc-int halfdouble))))))
+
+(do-bind [8 10])                                               ;;'(9 14 21 26 10 15 25 30)
+
+;;and without monad
+
+(apply concat (for [a [8 10]
+                    b (half-double a)]
+                (inc-int b)))
