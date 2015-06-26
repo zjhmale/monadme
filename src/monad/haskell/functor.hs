@@ -13,6 +13,9 @@ fmap :: (a -> b) -> [a] -> [b]
 
 --而一般listfmap其实就是大多数FP语言中的map
 
+instance Functor [] where
+    fmap = map
+
 --functor law
 
 --Identity

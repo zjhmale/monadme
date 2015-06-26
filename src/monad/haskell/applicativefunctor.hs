@@ -11,10 +11,19 @@ class (Functor f) => Applicative f where
 --<$>就是fmap的语法糖 用来和<*>一起组成lift操作
 
 --Maybe Applicative Functor
+instance Applicative Maybe where
+    pure = Just
+    Nothing <*> _ = Nothing
+    (Just f) <*> something = fmap f something
+
 a = Just (+3) <*> Just 9 --Just 12
 b = pure (+) <*> Just 3 <*> Just 5 --Just 8
 
 --<*>在List Applicative Functor中就是list comprehension
+instance Applicative [] where
+    pure x = [x]
+    fs <*> xs = [f x | f <- fs, x <- xs]
+
 c = (*0),(+100),(^2)] <*> [1,2,3] --[0,0,0,101,102,103,1,4,9]
 d = [(+),(*)] <*> [1,2] <*> [3,4]  --[4,5,5,6,3,4,6,8]
 e = (++) <$> ["ha","heh","hmm"] <*> ["?","!","."] --["ha?","ha!","ha.","heh?","heh!","heh.","hmm?","hmm!","hmm."]
