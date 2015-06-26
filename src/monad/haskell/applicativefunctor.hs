@@ -7,7 +7,7 @@ class (Functor f) => Applicative f where
     f <$> x = fmap f x
 
 --pure用来将一个类型包在一个applicative functor的上下文中
---<*>用来将包裹在上下文中的函数作用在其他的functor上
+--<*>用来将包裹在上下文中的函数作用在其他的functor上 通常叫做apply
 --<$>就是fmap的语法糖 用来和<*>一起组成lift操作
 
 --Maybe Applicative Functor
