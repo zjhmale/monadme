@@ -270,3 +270,37 @@
 (apply concat (for [a [8 10]
                     b (half-double a)]
                 (inc-int b)))
+
+;;make youself a do notation
+
+(def list-m {
+             :return (fn [v] (list v))
+             :bind (fn [mv f]
+                     (mapcat f mv))
+             })
+
+(let [bind (:bind list-m)
+      return (:return list-m)]
+  (bind [1 2 3]
+        (fn [a]
+          (bind [4 5]
+                (fn [b]
+                  (return [a b]))))))
+
+(defn m-steps [m [name val & bindings] body]
+  (println (str name val (vec bindings)))
+  (if (seq bindings)
+    `(-> ~val
+         ((:bind ~m) (fn [~name]
+                       ~(m-steps m (vec bindings) body))))
+    `(-> ~val
+         ((:bind ~m) (fn [~name]
+                       ((:return ~m) ~body))))))
+
+(defmacro do-m [m bindings body]
+  (m-steps m bindings body))
+
+(do-m list-m
+      [a [1 2 3]
+       b [4 5]]
+      [a b])
