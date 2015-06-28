@@ -164,9 +164,9 @@
 ;;just read the algo.monads source code
 ;;algo.monads提供了自定义monad的能力 只要实现m-result m-bind m-zero m-plus四个函数就可以利用domonad来使用monad的威力
 (def list-monad {:m-result (fn [v] [v])
-                 :m-bind (fn [mv f]
-                         (if (seq mv)
-                           (apply concat (map f mv)) []))})
+                 :m-bind   (fn [mv f]
+                             (if (seq mv)
+                               (apply concat (map f mv)) []))})
 
 ;;just list comprehension again
 ;;由于clojure缺乏type inference的能力(强类型动态语言硬伤)所以在monad的时候必须显式指名monad的类型 而无法通过类型系统自动判断使用哪一个monad
@@ -258,12 +258,12 @@
 
 (defn do-bind [lst]
   (bind lst
-       (fn [elem]
-         (bind (half-double elem)
-              (fn [halfdouble]
-                (inc-int halfdouble))))))
+        (fn [elem]
+          (bind (half-double elem)
+                (fn [halfdouble]
+                  (inc-int halfdouble))))))
 
-(do-bind [8 10])                                               ;;'(9 14 21 26 10 15 25 30)
+(do-bind [8 10])                                            ;;'(9 14 21 26 10 15 25 30)
 
 ;;and without monad
 
@@ -275,8 +275,8 @@
 
 (def list-m {
              :return (fn [v] (list v))
-             :bind (fn [mv f]
-                     (mapcat f mv))
+             :bind   (fn [mv f]
+                       (mapcat f mv))
              })
 
 (let [bind (:bind list-m)
@@ -288,7 +288,7 @@
                   (return [a b]))))))
 
 (defn m-steps [m [name val & bindings] body]
-  (println (str name val (vec bindings)))
+  ;;(println (str name val (vec bindings)))
   (if (seq bindings)
     `(-> ~val
          ((:bind ~m) (fn [~name]
@@ -300,7 +300,39 @@
 (defmacro do-m [m bindings body]
   (m-steps m bindings body))
 
-(do-m list-m
-      [a [1 2 3]
-       b [4 5]]
-      [a b])
+(defn combinations [ma mb]
+  (do-m list-m
+        [a ma
+         b mb]
+        [a b]))
+
+(combinations [1 2 3] [4 5])
+
+;;just list comprehension nothing new here
+
+(for [a [1 2 3]
+      b [4 5]]
+  [a b])
+
+;;maybe monad with the do notation macro
+
+(defn add [a b]
+  (+ a b))
+
+(add 1 2)
+;;(add 1 nil)                                                 ;;CompilerException java.lang.NullPointerException
+
+(def monad-maybe {
+                  :return (fn [v] v)
+                  :bind   (fn [mv f]
+                            (when mv
+                              (f mv)))
+                  })
+
+(defn m-add [ma mb]
+  (do-m monad-maybe [a ma
+                     b mb]
+        (+ a b)))
+
+(m-add 1 2)
+(m-add 1 nil)
