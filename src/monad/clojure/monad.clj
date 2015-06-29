@@ -273,11 +273,9 @@
 
 ;;make youself a do notation
 
-(def list-m {
-             :return (fn [v] (list v))
+(def list-m {:return (fn [v] (list v))
              :bind   (fn [mv f]
-                       (mapcat f mv))
-             })
+                       (mapcat f mv))})
 
 (let [bind (:bind list-m)
       return (:return list-m)]
@@ -322,12 +320,10 @@
 (add 1 2)
 ;;(add 1 nil)                                                 ;;CompilerException java.lang.NullPointerException
 
-(def monad-maybe {
-                  :return (fn [v] v)
+(def monad-maybe {:return (fn [v] v)
                   :bind   (fn [mv f]
                             (when mv
-                              (f mv)))
-                  })
+                              (f mv)))})
 
 (defn m-add [ma mb]
   (do-m monad-maybe [a ma
