@@ -104,6 +104,30 @@ runReader return ("hello, " ++ "adit" ++ "!") "adit"
 (\_ -> ("hello, " ++ "adit" ++ "!")) "adit"
 "hello, adit!"
 
+--reader monad的一个最大的作用就是将一个很多个函数都要用到的配置信息 传给所有这些函数 比如一个不太恰当的例子
+
+import Control.Monad.Reader
+
+hello :: Reader String String
+hello = do
+    name <- ask
+    return ("hello, " ++ name ++ "!")
+
+bye :: Reader String String
+bye = do
+    name <- ask
+    return ("bye, " ++ name ++ "!")
+
+convo :: Reader String String
+convo = do
+    c1 <- hello
+    c2 <- bye
+    return $ c1 ++ c2
+
+main = print . runReader convo $ "adit"
+
+--可以看到我们不需要每次都把"adit"这个配置值都显式的传给hello和bye之类依赖这个配置值的函数了 而是用reader monad在外部接受一次就行了 内部代码非常的简洁
+
 --State Monad is similiar to reader monad
 --The State monad is the Reader monad’s more impressionable best friend
 
@@ -155,6 +179,8 @@ State $ \s -> ("hello, " ++ s ++ "!", "tintin")
 runState greeter $ "adit" --((runState greeter) "adit") 要这样理解这个表达式 先获得等待状态传入的函数 在作用在外部的状态上
 (\s -> ("hello, " ++ s ++ "!", "tintin")) "adit"
 --=> ("hello, adit!", "tintin") "tintin" is just the current state
+
+--另一种reader monad的实现 只是单纯的将函数当做了上下文
 
 instance Monad ((->) r) where
     return x = \_ -> x
