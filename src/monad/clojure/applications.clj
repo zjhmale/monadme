@@ -156,7 +156,8 @@
   [_]
   (prn "Compute clone for user"))
 
-;;    clone! :: Number -> String -> Reader UserRepository Number
+;;type hint
+;;clone! :: Number -> String -> Reader UserRepository Number
 (defn clone! [id user]
   (do-m reader-m
         [repo (ask)]
@@ -176,3 +177,4 @@
 ;;这里实现依赖注入的意义在于 如果不用reader monad那么就需要用namespace/function来使用另一个名字空间的函数 这样就会变得很冗余
 ;;每次都要加上namespace前缀很繁琐 用reader monad就可以只写一次 后面所有依赖另一个namespace中函数的位置都不用再显示生命namespace前缀了
 ;;但是貌似defprotocol和reify的组合本身就可以这样弄 就是repo那里使用let绑定为mk-user-repo的位置 用reader monad会让代码描述性更强 repo就是单独传入的一个module一样的意思
+;;如果不用reader monad那么用mk-user-repo函数生成的repo值还需要显示的被传入clone!函数 现在只要在最外层显式地写一次就好了
