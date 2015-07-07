@@ -115,55 +115,77 @@
 						* real world (full of states and side effects) -> IO, STM, Random ...
 					</script>
 				</section>
-				<section>
-					<h2>Pretty Code</h2>
-					<pre><code class="clojure" data-trim contenteditable>
-						(map inc [1 2 3])
-					</code></pre>
-					<p>Code syntax highlighting courtesy of <a href="http://softwaremaniacs.org/soft/highlight/en/description/">highlight.js</a>.</p>
+				<section data-markdown>
+					<script type="text/template">
+						## Functor
+						
+						Functor is just a typeclass
+
+						```haskell
+						class Functor f where
+							fmap :: (a -> b) -> f a -> f b
+						```
+
+						```clojure
+						(defprotocol Functor
+							(fmap [functor f] "(a -> b) -> f a -> f b"))
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## List Functor
+
+						将原本只对Functor内部元素范畴的态射变为针对新的范畴上的态射
+
+						```haskell
+						instance Functor [] where
+							fmap = map
+						```
+
+						```clojure
+						(defrecord List [value]
+						Functor
+						(fmap [functor f]
+							(List. (map f (:value functor)))))
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## Functor Law
+
+						```haskell
+						--Identity
+						fmap id functor = id functor
+						--Composition
+						fmap (f . g) functor = fmap f (fmap g functor)
+						```
+
+						```clojure
+						;;Identity
+						(let [list-functor (List. [1 2 3])]
+							(= (fmap list-functor identity)
+							(identity list-functor)))
+						;;Composition
+						(let [f #(+ 10 %)
+							  g #(* 2 %)
+							  list-functor (List. [1 2 3])]
+							(= (fmap list-functor (comp f g))
+							   (-> list-functor (fmap g) (fmap f))))
+						```
+					</script>
 				</section>
 				<section>
-					<h2>Marvelous List</h2>
-					<ul>
-						<li>No order here</li>
-						<li>Or here</li>
-						<li>Or here</li>
-						<li>Or here</li>
-					</ul>
-				</section>
-				<section>
-					<h2>Fantastic Ordered List</h2>
-					<ol>
-						<li>One is smaller than...</li>
-						<li>Two is smaller than...</li>
-						<li>Three!</li>
-					</ol>
-				</section>
-				<section>
-					<h2>Clever Quotes</h2>
+					<h2>Thx :)</h2>
 					<p>
-						These guys come in two forms, inline: <q cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">
-						&ldquo;The nice thing about standards is that there are so many to choose from&rdquo;</q> and block:
+						Q & A
 					</p>
-					<blockquote cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">
-						&ldquo;For years there has been a theory that millions of monkeys typing at random on millions of typewriters would
-						reproduce the entire works of Shakespeare. The Internet has proven this theory to be untrue.&rdquo;
-					</blockquote>
 				</section>
 				<section data-state="customevent">
-					<h2>State Events</h2>
-					<p>
-						Additionally custom events can be triggered on a per slide basis by binding to the <code>data-state</code> name.
-					</p>
 					<pre><code class="clojure" data-trim contenteditable style="font-size: 18px;">
-						(into {} (map vector [:a :b :c] [1 2 3]))
+						(into {} (map vector [:a :b :c] [1 2 3])) ;;{:a 1, :b 2, :c 3}
 					</code></pre>
-				</section>
-				<section>
-					<h2>Take a Moment</h2>
-					<p>
-						Press B or . on your keyboard to pause the presentation. This is helpful when you're on stage and want to take distracting slides off the screen.
-					</p>
 				</section>
 			</div>
 		</div>
