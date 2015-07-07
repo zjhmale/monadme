@@ -192,6 +192,11 @@
     (>>= ma (fn [_] mb))))
 
 (:value (return (->List nil) 3))
+
+(:value (>>= (->List (list 3 4 5))
+             (fn [x]
+               (->List (list x (- x))))))
+
 ;;list comprehension is just a syntax suger of list monad
 
 (:value (>>= (->List (list 1 2))
