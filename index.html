@@ -666,6 +666,35 @@
 						```
 					</script>
 				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## Reader Monad
+
+						```haskell
+						newtype Reader r a = Reader {  runReader :: r -> a }
+						instance Monad (Reader ((->) r)) where
+						    return x = Reader $ \_ -> x
+						    --m is a reader monad and runReader m is just get the unwrapped function
+						    m >>= k = Reader $ \r -> runReader (k (runReader m r)) r
+
+						ask = Reader $ \x -> x
+						asks = Reader $ \f -> (\env -> f env)
+						```
+
+						```clojure
+						;;因为clojure中没有haskell中那么强大的类型系统 强行装入一个context中有点繁琐 以演示为主
+						(def reader-m {:return (fn [a]
+						                         (fn [_] a))
+						               :bind   (fn [m k]
+						                         (fn [r]
+						                           ((k (m r)) r)))})
+						(defn ask [] identity)
+						(defn asks [f]
+						  (fn [env]
+						    (f env)))
+						```
+					</script>
+				</section>
 				<section>
 					<h2>Thx :)</h2>
 					<p>
