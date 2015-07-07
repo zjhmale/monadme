@@ -145,9 +145,9 @@
 
 						```clojure
 						(defrecord List [value]
-						Functor
-						(fmap [functor f]
-							(List. (map f (:value functor)))))
+						  Functor
+						  (fmap [functor f]
+							  (List. (map f (:value functor)))))
 						```
 					</script>
 				</section>
@@ -390,6 +390,71 @@
 						      z (->List (list 7 8 9))]
 						  (= (mappend x (mappend y z))
 						     (mappend (mappend x y) z)))
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## Monad
+
+						```haskell
+						class Monad m where
+						    return :: a -> m a
+						    (>>=) :: m a -> (a -> m b) -> m b
+						    (>>) :: m a -> m b -> m b
+						    x >> y = x >>= \_ -> y
+						```
+
+						```clojure
+						(defprotocol Monad
+						  (return [context value] "return :: a -> ma")
+						  (>>= [m f] ">>= :: m a -> (a -> m b) -> m b")
+						  (>> [ma mb] ">> :: m a -> m b -> m b just ignore the first value"))
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## Maybe Monad
+
+						```haskell
+						instance Monad Maybe where
+						    return x = Just x
+						    Nothing >>= f = Nothing
+						    Just x >>= f  = f x
+						    fail _ = Nothing
+						```
+
+						```clojure
+						(defrecord Maybe [value]
+						  Monad
+						  (return [context v] (->Maybe v))
+						  (>>= [m f]
+						    (let [v (:value m)]
+						      (if v (f v) m)))
+						  (>> [ma mb]
+						    (>>= ma (fn [_] mb))))
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## some examples
+
+						```haskell
+						Prelude> Just 9 >>= \x -> return (x*10)
+						Just 90
+						Prelude> Nothing >>= \x -> return (x*10)
+						Nothing
+						```
+
+						```clojure
+						(:value (return (->Maybe nil) false))
+						;;
+						(:value (>>= (->Maybe 9) (fn [x] (return (->Maybe nil) (* x 10)))))
+						;;
+						(:value (>>= (->Maybe nil) (fn [x] (return (->Maybe nil) (* x 10)))))
+						;;
 						```
 					</script>
 				</section>
