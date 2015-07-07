@@ -1,4 +1,4 @@
-(ns monad.monad
+(ns monad.clojure.monad
   (:use [clojure.algo.monads]))
 
 ;;in a world without monad

@@ -1,4 +1,4 @@
-(ns monad.functor)
+(ns monad.clojure.functor)
 
 ;;define the Functor typeclass
 (defprotocol Functor

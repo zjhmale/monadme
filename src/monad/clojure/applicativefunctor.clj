@@ -1,7 +1,7 @@
-(ns monad.applicativefunctor
-  (:use [monad.functor])
-  (:require [monad.functor])
-  (:import [monad.functor List]))
+(ns monad.clojure.applicativefunctor
+  (:use [monad.clojure.functor])
+  (:require [monad.clojure.functor])
+  (:import [monad.clojure.functor List]))
 
 (defmulti pure (fn [f _] f))
 (defmethod pure List [_ v]
