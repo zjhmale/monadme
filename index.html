@@ -601,6 +601,71 @@
 						* State Monad
 					</script>
 				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## Writer Monad
+
+						```haskell
+						newtype Writer w a = Writer { runWriter :: (a, w) }
+						instance (Monoid w) => Monad (Writer w) where
+						    return x = Writer (x, mempty)
+						    (Writer (x, v)) >>= f = let (Writer (y, vt)) = f x in Writer (y, v `mappend` vt)
+						```
+
+						```haskell
+						tell :: [String] -> Writer [String] Int
+						tell msg = writer (0, msg)
+
+						logNumber :: Int -> Writer [String] Int
+						logNumber x = writer (x, ["Got number: " ++ show x])
+
+						multWithLog :: Writer [String] Int
+						multWithLog = do
+						    a <- logNumber 3
+						    b <- logNumber 5
+						    tell ["Gonna multiply these two"]
+						    return (a*b)
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## what the heck is going on here
+
+						```haskell
+						logNumber 3 >>= (\a -> logNumber 5 >>= (\b -> tell ["Gonna multiply these two"] >>= (\_ -> return (a*b))))
+						--step1
+						let (Writer (y, vt)) =
+						    logNumber 5 >>= (\b -> tell ["Gonna multiply these two"] >>= (\_ -> return (3*b)))
+						    in Writer (y, "Got number: 3" `mappend` vt)
+						--step2
+						let (Writer (y, vt)) =
+						    (let (Writer (y1, vt1)) =
+						        tell ["Gonna multiply these two"] >>= (\_ -> return (3*5))
+						        in Writer (y1, "Got number: 5" `mappend` vt1))
+						    in Writer (y, "Got number: 3" `mappend` vt)
+						--step3
+						let (Writer (y, vt)) =
+						    (let (Writer (y1, vt1)) =
+						        (let (Writer (y2, vt2)) =
+						            return (3*5)
+						            in Writer (y2, ["Gonna multiply these two"] `mappend` vt2))
+						        in Writer (y1, ["Got number: 5"] `mappend` vt1))
+						    in Writer (y, ["Got number: 3"] `mappend` vt)
+						--step4
+						y2 = 15 vt2 = mempty :: [String]
+						y1 = 15 vt1 = ["Gonna multiply these two"]
+						y = 15 vt = ["Got number: 5", "Gonna multiply these two"]
+
+						-- so the final result is
+						Writer (15, ["Got number: 3", "Got number: 5", "Gonna multiply these two"])
+
+						--use runWriter to get the unwrapped tuple value
+						Prelude> runWriter multWithLog
+						(15, ["Got number: 3", "Got number: 5", "Gonna multiply these two"])
+						```
+					</script>
+				</section>
 				<section>
 					<h2>Thx :)</h2>
 					<p>
