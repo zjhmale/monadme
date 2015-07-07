@@ -186,9 +186,6 @@
 							(<*>) :: f (a -> b) -> f a -> f b
 							(<$>) :: (Functor f) => (a -> b) -> f a -> f b
 							f <$> x = fmap f x
-						instance Applicative [] where
-							pure x = [x]
-							fs <*> xs = [f x | f <- fs, x <- xs]
 						```
 
 						```clojure
@@ -196,6 +193,20 @@
 						  (pure [functor f])
 						  (<*> [fs xs])
 						  (<$> [xs f]))
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## List Applicative Functor
+
+						```haskell
+						instance Applicative [] where
+							pure x = [x]
+							fs <*> xs = [f x | f <- fs, x <- xs]
+						```
+
+						```clojure
 						(defrecord List [value]
 						  Applicative
 						  (pure [_ f]
@@ -241,17 +252,11 @@
 						## Applicative Functor Laws
 
 						```haskell
-						--Identity
-						pure f <*> v = fmap f v
-
-						--Composition
-						pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
-
-						--Homomorphism
-						pure f <*> pure x = pure (f x)
-
-						--Interchange
-						u <*> pure y = pure ($ y) <*> u
+						class Monoid m where
+							mempty :: m
+							mappend :: m -> m -> m
+							mconcat :: [m] -> m
+							mconcat ms = foldr mappend mempty ms
 						```
 					</script>
 				</section>
@@ -289,6 +294,73 @@
 						      $ (fn [y] #(% y))]
 						  (= (<*> u (pure (->List nil) y))
 						     (<*> (pure (->List nil) ($ y)) u)))
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## Monoid
+
+						```haskell
+						class Monoid m where
+						    mempty :: m
+						    mappend :: m -> m -> m
+						    mconcat :: [m] -> m
+						    mconcat ms = foldr mappend mempty ms
+						```
+
+						```clojure
+						(defprotocol Monoid
+						  (mempty [m] "mempty :: m")
+						  (mappend [m n] "mappend :: m -> m -> m"))
+
+						(defn mconcat [m nest]
+						  "mconcat :: [m] -> m"
+						  (reduce mappend (mempty m) nest))
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## List Monoid
+
+						```haskell
+						instance Monoid [a] where
+							mempty = []
+							mappend = (++)
+						```
+
+						```clojure
+						(defrecord List [value]
+						  Monoid
+						  (mempty [m] (List. (list)))
+						  (mappend [m n]
+						    (List. (apply concat (map :value [m n])))))
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## some examples
+
+						```haskell
+						Prelude Data.Monoid> mempty :: [a]
+						[]
+						Prelude Data.Monoid> [1,2,3] `mappend` [4,5,6]
+						[1,2,3,4,5,6]
+						Prelude Data.Monoid> mconcat [[1,2],[3,6],[9]]
+						[1,2,3,6,9]
+						```
+
+						```clojure
+						(:value (mempty (List. (list))))
+
+						(:value (let [m (List. (list 1 2 3))
+						              n (List. (list 4 5 6))]
+						          (mappend m n)))
+
+						(:value (let [nest (map ->List [(list 1 2 3) (list 4 5 6)])]
+						          (mconcat (->List (list)) nest)))
 						```
 					</script>
 				</section>
