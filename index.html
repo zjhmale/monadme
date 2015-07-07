@@ -36,42 +36,83 @@
 						一个单子是自函子范畴上的一个幺半群
 					</p>
 				</section>
-				<section>
-					<h2>Slides</h2>
-					<p>
-						Not a coder? Not a problem. There's a fully-featured visual editor for authoring these, try it out at <a href="http://slides.com" target="_blank">http://slides.com</a>.
-					</p>
-				</section>
-				<section>
-					<h2>Point of View</h2>
-					<p>
-						Press <strong>ESC</strong> to enter the slide overview.
-					</p>
-					<p>
-						Hold down alt and click on any element to zoom in on it using <a href="http://lab.hakim.se/zoom-js">zoom.js</a>. Alt + click anywhere to zoom back out.
-					</p>
-				</section>
-				<section>
-					<h2>Touch Optimized</h2>
-					<p>
-						Presentations look great on touch devices, like mobile phones and tablets. Simply swipe through your slides.
-					</p>
+				<section data-markdown>
+					<script type="text/template">
+						## 范畴
+
+						一个范畴(category)由三部分组成:
+
+						* 一系列的对象(object) -> 一系列的类型
+						* 一系列的态射(morphism) -> fmap
+						* 一个组合(composition)操作符,用点(.)表示,用于将态射进行组合
+					</script>
 				</section>
 				<section data-markdown>
 					<script type="text/template">
-						## Markdown support
+						## 函子
 
-						Write content using inline or external Markdown.
-						Instructions and more info available in the [readme](https://github.com/hakimel/reveal.js#markdown).
+						* 一个functor(函子)是将一个范畴转换到另外一个范畴(是类型到类型的映射)
+						* 而endofunctor(自函子)则是转换的源范畴和目标范畴是同一个
+						* 因为Haskell中只有一个Hask范畴 所有的类型都在这一个范畴中 Haskell中所有的函子都是自函子
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 函子的作用
 
+						对于给定的两个范畴A和B,函子的作用有两个:
+						
+						* 将范畴A中的对象映射到范畴B中的对象
+						```haskell
+						Prelude> :t Just 3 :: Maybe Int
+						Just 3 :: Maybe Int :: Maybe Int
 						```
-						<section data-markdown>
-						  ## Markdown support
-
-						  Write content using inline or external Markdown.
-						  Instructions and more info available in the [readme](https://github.com/hakimel/reveal.js#markdown).
-						</section>
+						* 将范畴A中的态射映射到范畴B中的态射
+						```haskell
+						Prelude> fmap (+3) (Just 3)
+						Just 6
 						```
+						* 在Haskell中,因为Hask这个范畴的整体与局部具有自相似性(类似枫树叶的结构),而functor连接了Hask的整体与局部,使整体所具有的性质能够在局部中使用(为Haskell中的类型建立沟通的桥梁)
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 群
+
+						G为非空集合,如果在G上定义的二元运算\*,满足:
+
+						* 封闭性(Closure):对于任意a,b∈G,有a\*b∈G
+						* 结合律(Associativity):对于任意a,b,c∈G,有(a\*b)\*c=a\*(b\*c)
+						* 幺元(Identity):存在幺元e,使得对于任意a∈G,e\*a=a\*e=a
+						* 逆元L对于任意a∈G,存在逆元a^-1,使得a^-1\*a=a\*a^-1=e
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 幺半群
+
+						* 如果仅满足封闭性和结合律,则称G是一个半群(Semigroup)
+						* 如果仅满足封闭性和结合律并且有幺元,则称G是一个含幺半群(Monoid)
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 单子
+						
+						Monad是自函子范畴中的Monoid
+
+						* 对原范畴组合成新的范畴,这个范畴对于Monad来说必须是幺半群Monoid,可以认为Monad是一系列自函子的组合,这种组合是一种转换,转换的结果是Monoid
+						* Monad只不过也是一种特殊情况(自函子)下的monoid,是自己对自己进行转换的集合
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## Monad的作用
+						
+						在Haskell中Monad连接了两个不同的世界,让这两个世界可以无阻力的沟通
+
+						* pure world (lazy, immutable, no side effects at all)
+						* real world (full of states and side effects) -> IO, STM, Random ...
 					</script>
 				</section>
 				<section>
