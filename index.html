@@ -176,6 +176,32 @@
 						```
 					</script>
 				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## Applicative Functor
+
+						```haskell
+						class (Functor f) => Applicative f where
+							pure :: a -> f a
+							(<*>) :: f (a -> b) -> f a -> f b
+							(<$>) :: (Functor f) => (a -> b) -> f a -> f b
+							f <$> x = fmap f x
+						```
+
+						```clojure
+						;;Identity
+						(let [list-functor (List. [1 2 3])]
+							(= (fmap list-functor identity)
+							(identity list-functor)))
+						;;Composition
+						(let [f #(+ 10 %)
+							  g #(* 2 %)
+							  list-functor (List. [1 2 3])]
+							(= (fmap list-functor (comp f g))
+							   (-> list-functor (fmap g) (fmap f))))
+						```
+					</script>
+				</section>
 				<section>
 					<h2>Thx :)</h2>
 					<p>
