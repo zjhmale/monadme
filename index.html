@@ -459,6 +459,57 @@
 						```
 					</script>
 				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## List Monad
+
+						```haskell
+						instance Monad [] where
+						    return x = [x]
+						    xs >>= f = concat (map f xs)
+						    fail _ = []
+						```
+
+						```clojure
+						(defrecord List [value]
+						  Monad
+						  (return [context v] (->List (list v)))
+						  (>>= [m f]
+						    (let [v (:value m)]
+						      (if (seq v)
+						        (->List (apply concat (map (comp :value f) v)))
+						        v)))
+						  (>> [ma mb]
+						    (>>= ma (fn [_] mb))))
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## some examples
+
+						```haskell
+						Prelude> [3,4,5] >>= \x -> [x,-x]
+						[3,-3,4,-4,5,-5]
+						Prelude> [1,2] >>= \n -> ['a','b'] >>= \ch -> return (n,ch)
+						[(1,'a'),(1,'b'),(2,'a'),(2,'b')]
+						Prelude>
+						```
+
+						```clojure
+						(defrecord List [value]
+						  Monad
+						  (return [context v] (->List (list v)))
+						  (>>= [m f]
+						    (let [v (:value m)]
+						      (if (seq v)
+						        (->List (apply concat (map (comp :value f) v)))
+						        v)))
+						  (>> [ma mb]
+						    (>>= ma (fn [_] mb))))
+						```
+					</script>
+				</section>
 				<section>
 					<h2>Thx :)</h2>
 					<p>
