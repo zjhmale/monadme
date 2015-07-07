@@ -77,6 +77,7 @@ return x >>= f = f x
 newtype Reader r a = Reader {  runReader :: r -> a }
 
 ask = Reader $ \x -> x -- or just identity function
+asks = Reader $ \f -> (\env -> f env)
 
 instance Monad (Reader ((->) r)) where
     return x = Reader $ \_ -> x
