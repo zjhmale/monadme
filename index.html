@@ -668,6 +668,25 @@
 				</section>
 				<section data-markdown>
 					<script type="text/template">
+						## a simple macro to simulate do notation
+
+						```clojure
+						(defn m-steps [m [name val & bindings] body]
+						  (if (seq bindings)
+						    `(-> ~val
+						         ((:bind ~m) (fn [~name]
+						                       ~(m-steps m (vec bindings) body))))
+						    `(-> ~val
+						         ((:bind ~m) (fn [~name]
+						                       ((:return ~m) ~body))))))
+
+						(defmacro do-m [m bindings body]
+						  (m-steps m bindings body))
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
 						## Reader Monad
 
 						```haskell
