@@ -134,7 +134,7 @@
   (>> [ma mb]
     (>>= ma (fn [_] mb))))
 
-(:value (return (->Maybe nil) false))
+(:value (return (->Maybe nil) nil))
 
 (:value (>>= (->Maybe 9) (fn [x] (return (->Maybe nil) (* x 10)))))
 (:value (>>= (->Maybe nil) (fn [x] (return (->Maybe nil) (* x 10)))))
