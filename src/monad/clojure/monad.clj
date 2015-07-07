@@ -279,10 +279,10 @@
 ;;make youself a do notation
 
 (def list-m {:return (fn [v] (list v))
-             :bind   (fn [mv f]
+             :>>=   (fn [mv f]
                        (mapcat f mv))})
 
-(let [bind (:bind list-m)
+(let [bind (:>>= list-m)
       return (:return list-m)]
   (bind [1 2 3]
         (fn [a]
@@ -294,10 +294,10 @@
   ;;(println (str name val (vec bindings)))
   (if (seq bindings)
     `(-> ~val
-         ((:bind ~m) (fn [~name]
+         ((:>>= ~m) (fn [~name]
                        ~(m-steps m (vec bindings) body))))
     `(-> ~val
-         ((:bind ~m) (fn [~name]
+         ((:>>= ~m) (fn [~name]
                        ((:return ~m) ~body))))))
 
 (defmacro do-m [m bindings body]
@@ -326,7 +326,7 @@
 ;;(add 1 nil)                                                 ;;CompilerException java.lang.NullPointerException
 
 (def monad-maybe {:return (fn [v] v)
-                  :bind   (fn [mv f]
+                  :>>=   (fn [mv f]
                             (when mv
                               (f mv)))})
 
