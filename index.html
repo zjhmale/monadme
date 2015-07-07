@@ -354,13 +354,14 @@
 
 						```clojure
 						(:value (mempty (List. (list))))
-
+						;;=> ()
 						(:value (let [m (List. (list 1 2 3))
 						              n (List. (list 4 5 6))]
 						          (mappend m n)))
-
+						;;=> (1 2 3 4 5 6)
 						(:value (let [nest (map ->List [(list 1 2 3) (list 4 5 6)])]
 						          (mconcat (->List (list)) nest)))
+						;;=> (1 2 3 4 5 6)
 						```
 					</script>
 				</section>
@@ -450,11 +451,11 @@
 
 						```clojure
 						(:value (return (->Maybe nil) false))
-						;;
+						;;=> nil
 						(:value (>>= (->Maybe 9) (fn [x] (return (->Maybe nil) (* x 10)))))
-						;;
+						;;=> 90
 						(:value (>>= (->Maybe nil) (fn [x] (return (->Maybe nil) (* x 10)))))
-						;;
+						;;=> nil
 						```
 					</script>
 				</section>
