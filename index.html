@@ -364,6 +364,35 @@
 						```
 					</script>
 				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## Monoid laws
+
+						```haskell
+						--Identity
+						mappend mempty x = x
+						mappend x mempty = x
+
+						--Associativity(结合律)
+						mappend x (mappend y z) = mappend (mappend x y) z
+						```
+
+						```clojure
+						;;Identity
+						(let [x (->List (list 1 2 3))]
+						  (= (mappend (mempty (->List (list))) x)
+						     (mappend x (mempty (->List (list))))
+						     x))
+
+						;;Associativity(结合律)
+						(let [x (->List (list 1 2 3))
+						      y (->List (list 4 5 6))
+						      z (->List (list 7 8 9))]
+						  (= (mappend x (mappend y z))
+						     (mappend (mappend x y) z)))
+						```
+					</script>
+				</section>
 				<section>
 					<h2>Thx :)</h2>
 					<p>
