@@ -29,6 +29,7 @@
 				<section>
 					<h1>Monad</h1>
 					<p>from a clojure programmer's perspective</p>
+					<e>@zjh</e>
 				</section>
 				<section>
 					<h2>what is monad?</h2>
@@ -367,7 +368,7 @@
 				</section>
 				<section data-markdown>
 					<script type="text/template">
-						## Monoid laws
+						## Monoid Laws
 
 						```haskell
 						--Identity
@@ -497,16 +498,55 @@
 						```
 
 						```clojure
-						(defrecord List [value]
-						  Monad
-						  (return [context v] (->List (list v)))
-						  (>>= [m f]
-						    (let [v (:value m)]
-						      (if (seq v)
-						        (->List (apply concat (map (comp :value f) v)))
-						        v)))
-						  (>> [ma mb]
-						    (>>= ma (fn [_] mb))))
+						(:value (return (->List nil) 3))
+						;;=> (3)
+
+						(:value (>>= (->List (list 3 4 5))
+						             (fn [x]
+ 						               (->List (list x (- x))))))
+						;;=> (3 -3 4 -4 5 -5)
+
+						;;list comprehension is just a syntax suger of list monad
+						(:value (>>= (->List (list 1 2))
+						             (fn [a]
+						               (>>= (->List (list a (- a)))
+						                    (fn [b]
+						                      (return (->List nil) (* 3 b)))))))
+						;;=> (3 -3 6 -6)
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## Monad Laws
+
+						```haskell
+						--Right unit
+						m >>= return = m
+						--Left unit
+						return x >>= f = f x
+						--Associativity(结合律)
+						(m >>= f) >>= g = m >>= (\x -> f x >>= g)
+						```
+						```clojure
+						;;Right unit
+						(let [m (->List (list 1 2 3))]
+						  (= m (>>= m
+						            (fn [v]
+						              (return (->List nil) v)))))
+						;;Left unit
+						(let [m 3
+						      f (fn [x] (->List (list x (- x))))]
+						  (= (f m)
+						     (>>= (return (->List nil) m) f)))
+						;;Associativity(结合律)
+						(let [m (return (->List nil) 3)
+						      f (fn [x] (->List (list x (- x))))
+						      g (fn [x] (->List (list (inc x) (dec x))))]
+						  (= (>>= (>>= m f) g)
+						     (>>= m
+						          (fn [x]
+						            (>>= (f x) g)))))
 						```
 					</script>
 				</section>
