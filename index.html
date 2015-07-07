@@ -550,6 +550,57 @@
 						```
 					</script>
 				</section>
+				<section data-markdown>
+					<script type="text/template">
+						### Monad for the real word problem
+
+						to avoid nested if statement
+
+						```clojure
+						(defn place-order-use-bind
+						  [order]
+						  (:value (>>= (->Maybe order)
+						               (fn [order]
+						                 (>>= (->Maybe (calculate-shipping-rate (:address order)))
+						                      (fn [shipping-rate]
+						                        (>>= (->Maybe (lookup-discount-code (:discount-code order)))
+						                             (fn [discount]
+						                               (return (->Maybe nil)
+						                                       (-> order
+						                                           (apply-shipping-costs shipping-rate)
+						                                           (apply-discount-code discount)
+						                                           (place)))))))))))
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						### Monad for the real word problem
+
+						use do notation to make code more concise and readable
+
+						```clojure
+						(defn place-order-use-monad [order]
+						  (domonad maybe-m
+						    [order order
+						     shipping-rate (calculate-shipping-rate (:address order))
+						     discount (lookup-discount-code (:discount-code order))]
+						    (-> order
+						        (apply-shipping-costs shipping-rate)
+						        (apply-discount-code discount)
+						        (place))))
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## three useful Monads
+
+						* Writer Monad
+						* Reader Monad
+						* State Monad
+					</script>
+				</section>
 				<section>
 					<h2>Thx :)</h2>
 					<p>
