@@ -48,7 +48,7 @@
   "mconcat :: [m] -> m"
   (reduce mappend (mempty m) nest))
 
-(:value (mempty (List. '())))
+(:value (mempty (List. (list))))
 
 (:value (let [m (List. (list 1 2 3))
               n (List. (list 4 5 6))]
@@ -57,7 +57,7 @@
 (mappend (mappend (mempty (List. '())) (List. (list 1 2 3))) (List. (list 4 5 6)))
 
 (:value (let [nest (map ->List [(list 1 2 3) (list 4 5 6)])]
-          (mconcat (->List '()) nest)))
+          (mconcat (->List (list)) nest)))
 
 (defrecord Product [value]
   Monoid
