@@ -279,7 +279,7 @@
 ;;make youself a do notation
 
 (def list-m {:return (fn [v] (list v))
-             :>>=   (fn [mv f]
+             :>>=    (fn [mv f]
                        (mapcat f mv))})
 
 (let [bind (:>>= list-m)
@@ -295,10 +295,10 @@
   (if (seq bindings)
     `(-> ~val
          ((:>>= ~m) (fn [~name]
-                       ~(m-steps m (vec bindings) body))))
+                      ~(m-steps m (vec bindings) body))))
     `(-> ~val
          ((:>>= ~m) (fn [~name]
-                       ((:return ~m) ~body))))))
+                      ((:return ~m) ~body))))))
 
 (defmacro do-m [m bindings body]
   (m-steps m bindings body))
@@ -326,7 +326,7 @@
 ;;(add 1 nil)                                                 ;;CompilerException java.lang.NullPointerException
 
 (def monad-maybe {:return (fn [v] v)
-                  :>>=   (fn [mv f]
+                  :>>=    (fn [mv f]
                             (when mv
                               (f mv)))})
 
@@ -335,5 +335,22 @@
                      b mb]
         (+ a b)))
 
+(macroexpand '(do-m monad-maybe [a ma
+                                 b mb]
+                    (+ a b)))
+
+((:>>= monad-maybe)
+  ma
+  (clojure.core/fn [a]
+    (clojure.core/->
+      mb
+      ((:>>= monad-maybe)
+        (clojure.core/fn [b]
+          ((:return monad-maybe) (+ a b)))))))
+
 (m-add 1 2)
 (m-add 1 nil)
+
+;;可以看到maybe monad可以进行类似控制流切换的作用 也就是某一个值是nil的时候直接做类似break的操作 也就是返回了不再去做后面的所有操作了
+;;使用maybe monad的好处就是我们可以不再使用类似continuation这样晦涩的技术 而是利用monad来做控制流的切换 来对复杂的逻辑做判断逻辑的封装
+;;从上面的宏扩展结果就可以看到加入ma是nil 那么就不会再继续进行计算了 直接返回了nil 如果不是 那就把ma传入给后续的单参函数 cps风格的computation
