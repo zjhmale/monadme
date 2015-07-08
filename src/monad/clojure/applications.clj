@@ -12,7 +12,7 @@
 ;;just like the reader monad in haskell
 (def reader-m {:return (fn [a]
                          (fn [_] a))
-               :>>=   (fn [m k]
+               :>>=    (fn [m k]
                          (fn [r]
                            ((k (m r)) r)))})
 
@@ -120,6 +120,22 @@
          _ (connect-to-api-m)]
         (prn "Done.")))
 
+(defn connect-to-db-m-2 []
+  (do-m reader-m
+        [db-uri (asks :db-uri)]
+        (str "Connected to db at %s" db-uri)))
+
+(defn connect-to-api-m-2 []
+  (do-m reader-m
+        [api-key (asks :api-key)]
+        (str "Connected to api with key %s" api-key)))
+
+(defn run-app-m-2 []
+  (do-m reader-m
+        [dbinfo (connect-to-db-m-2)
+         apiinfo (connect-to-api-m-2)]
+        (str "dbinfo -> " dbinfo "apiinfo -> " apiinfo)))
+
 (macroexpand '(do-m reader-m
                     [_ (connect-to-db-m)
                      _ (connect-to-api-m)]
@@ -146,6 +162,10 @@
 
 ((run-app-m) {:db-uri  "user:passwd@host/dbname"
               :api-key "AF167"})
+
+;;从上面donotation这个宏的展开结果就可以看到 可以利用闭包性将参数传入最终的处理函数中 之前每一层的闭包参数都是_ 都忽略了 但是是可以放入参数的
+((run-app-m-2) {:db-uri  "user:passwd@host/dbname"
+                :api-key "AF167"})
 
 ;;感觉屌飞了 黑魔法啊 reader monad扔出来的就是一个单参函数接受传入的配置 并且可以用ask获取到传入的配置值
 ;;有了reader monad 就不需要把配置手动显式的传给每一个依赖配置的函数 可以让内部的业务代码更加整洁 当然团队内部平均水平肯定要都在一条线上
@@ -179,3 +199,8 @@
 ;;但是貌似defprotocol和reify的组合本身就可以这样弄 就是repo那里使用let绑定为mk-user-repo的位置 用reader monad会让代码描述性更强 repo就是单独传入的一个module一样的意思
 ;;如果不用reader monad那么用mk-user-repo函数生成的repo值还需要显示的被传入clone!函数 现在只要在最外层显式地写一次就好了
 ;;其实这样看来 上面传递env的那个例子也算是一种依赖注入 依赖就是env这个上下文中保存的信息
+
+;;monad还有一个高级应用就是用于面向combinator设计
+;;因为monad具有自相似性 局部与整体具有相同的结构与性质 函数式的组合子就是用小的遵守一定规则的小零件组成更大的但是仍然遵守同样规则的大零件 再组成更加复杂的大系统 但是所有东西从每一层看都是统一的 就像枫树叶的结构
+;;而传统的OO设计用来组合模块充斥着设计模式 最佳实践 都是一些看似严谨的工程实践经验组合 并没有严格的理论背景支撑 更像是文学 而不是理学 没有数学的美感 也没有自相似性这种神奇的性质
+;;上面的话有点中二 没有银弹 好玩就好
