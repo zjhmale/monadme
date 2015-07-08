@@ -674,10 +674,10 @@
 						(defn m-steps [m [name val & bindings] body]
 						  (if (seq bindings)
 						    `(-> ~val
-						         ((:bind ~m) (fn [~name]
+						         ((:>>= ~m) (fn [~name]
 						                       ~(m-steps m (vec bindings) body))))
 						    `(-> ~val
-						         ((:bind ~m) (fn [~name]
+						         ((:>>= ~m) (fn [~name]
 						                       ((:return ~m) ~body))))))
 
 						(defmacro do-m [m bindings body]
@@ -704,7 +704,7 @@
 						;;因为clojure中没有haskell中那么强大的类型系统 强行装入一个context中有点繁琐 以演示为主
 						(def reader-m {:return (fn [a]
 						                         (fn [_] a))
-						               :bind   (fn [m k]
+						               :>>=   (fn [m k]
 						                         (fn [r]
 						                           ((k (m r)) r)))})
 						(defn ask [] identity)
@@ -906,6 +906,27 @@
 						runState greeter $ "adit"
 						--要这样理解这个表达式 先获得等待状态传入的函数 在作用在外部的状态上
 						(\s -> ("hello, " ++ s ++ "!", "tintin")) "adit"
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## scala flatmap and haskell bind
+
+						is flatMap a monad?
+
+						```haskell
+						Prelude> [[1,2],[3]] >>= \x -> x
+						[1,2,3]
+						Prelude> [[1,2],[3]] >>= \x -> return x
+						[[1,2],[3]]
+						```
+
+						```scala
+						scala> List(List(1, 2), List(3)).flatMap(x => x)
+						List[Int] = List(1, 2, 3)
+						scala> List(List(1, 2), List(3)).flatMap(x => List(x))
+						List[List[Int]] = List(List(1, 2), List(3))
 						```
 					</script>
 				</section>
