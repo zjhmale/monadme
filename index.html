@@ -828,6 +828,96 @@
 						```
 					</script>
 				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## State Monad
+
+						```haskell
+						newtype State s a = State { runState :: s -> (a, s) }
+						instance Monad (State s) where
+						    return x = State $ \s -> (x, s)
+						    m >>= k = State $ \s -> let (a, st) = runState m s
+						                             in runState (k a) st
+						    --yet another bind definition use pattern match not use runState function
+						    (State h) >>= f = State $ \s -> let (a, newState) = h s
+						                                        (State g) = f a
+						                                    in g newState
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## what can we do with state monad
+
+						因为haskell是一个中二的纯净世界 所以你不可能去做任何有副作用的行为 比如说改变某一个状态的值 所以如果要模拟现实的状态的话我们只能是利用State Monad传入一个旧的状态 返回一个新的值和一个新的状态
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## State Monad is similiar to Reader Monad
+
+						The State monad is the Reader monad’s more impressionable best friend
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## some examples
+
+						```haskell
+						get = State $ \s -> (s, s) --获取当前的状态作为结果
+						put newState = State $ \s -> ((), newState) --创建一个新的带状态函数
+
+						greeter :: State String String
+						greeter = do
+						    name <- get
+						    put "tintin"
+						    return ("hello, " ++ name ++ "!")
+
+						Prelude> runState greeter $ "adit"
+						("hello, adit!", "tintin")
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## just show the details
+
+						```haskell
+						greeter "adit"
+
+						get >>= (\name -> put "tintin" >>= (\_ -> return ("hello, " ++ name ++ "!")))
+						State $ \s -> let (a, st) = (\s -> (s, s)) s
+						                in runState ((\name -> put "tintin" >>= (\_ -> return ("hello, " ++ name ++ "!"))) a) st
+						State $ \s -> let (a, st) = (s, s)
+						                in runState ((\name -> put "tintin" >>= (\_ -> return ("hello, " ++ name ++ "!"))) a) st
+						State $ \s -> runState ((\name -> put "tintin" >>= (\_ -> return ("hello, " ++ name ++ "!"))) s) s
+						State $ \s -> runState put "tintin" >>= (\_ -> return ("hello, " ++ s ++ "!")) s
+						State $ \s -> runState (State $ \s1 -> let (a, st) = (\s -> ((), "tintin") s1)
+						                                        in runState (\_ -> return ("hello, " ++ s ++ "!")) a st) s
+						State $ \s -> runState (State $ \s1 -> let (a, st) = ((), "tintin")
+						                                        in runState (\_ -> return ("hello, " ++ s ++ "!")) a st) s
+						State $ \s -> runState (State $ \s1 -> runState (\_ -> return ("hello, " ++ s ++ "!")) () "tintin") s
+						State $ \s -> runState (State $ \s1 -> runState return ("hello, " ++ s ++ "!") "tintin") s
+						State $ \s -> runState (State $ \s1 -> \s2 -> ("hello, " ++ s ++ "!", s2) "tintin") s
+						State $ \s -> runState (State $ \s1 -> ("hello, " ++ s ++ "!", "tintin")) s
+						State $ \s -> \s1 -> ("hello, " ++ s ++ "!", "tintin") s
+						State $ \s -> ("hello, " ++ s ++ "!", "tintin")
+
+						runState greeter $ "adit"
+						--要这样理解这个表达式 先获得等待状态传入的函数 在作用在外部的状态上
+						(\s -> ("hello, " ++ s ++ "!", "tintin")) "adit"
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## conclusion
+
+						* monad is not kind of a magic it is just another way for abstraction i.e. design pattern
+						* monad 在有强大类型系统支持和模式匹配这样的原语支持的时候才能发挥真正的威力 让代码可以简洁的不要不要的
+						* 没有银弹 不要中二
+					</script>
+				</section>
 				<section>
 					<h2>Thx :)</h2>
 					<p>
