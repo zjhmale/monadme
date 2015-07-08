@@ -554,7 +554,7 @@
 					<script type="text/template">
 						### Monad for the real word problem
 
-						to avoid nested if statement
+						to avoid nested if statement and nullpoint exceptions
 
 						```clojure
 						(defn place-order-use-bind
@@ -777,12 +777,12 @@
 						## use reader monad to fix real world problem
 
 						```clojure
-						(defn first-config-m []
+						(defn first-operation-m []
 						  (do-m reader-m
 						        [first-config (asks :first-config)]
 						        (prn (format "first config %s" first-config))))
 
-						(defn second-config-m []
+						(defn second-operation-m []
 						  (do-m reader-m
 						        [second-config (asks :second-config)
 						         env (ask)]
@@ -793,9 +793,35 @@
 
 						(defn entrypoint-m []
 						  (do-m reader-m
-						        [_ (first-config-m)
-						         _ (second-config-m)]
+						        [_ (first-operation-m)
+						         _ (second-operation-m)]
 						        (prn "continue the workflow!")))
+
+						((entrypoint-m) {:first-config  "first config"
+						                 :second-config "second config"})
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## ok we can also get the result of each step and work like a cps
+
+						```clojure
+						(defn first-operation-m []
+						  (do-m reader-m
+						        [first-config (asks :first-config)]
+						        (str "first config %s" first-config)))
+
+						(defn second-operation-m []
+						  (do-m reader-m
+						        [second-config (asks :second-config)]
+						        (str "second config %s" second-config)))
+
+						(defn entrypoint-m []
+						  (do-m reader-m
+						        [dbinfo (first-operation-m)
+						         apiinfo (second-operation-m)]
+						        (str "firstinfo -> " dbinfo "secondinfo -> " apiinfo)))
 
 						((entrypoint-m) {:first-config  "first config"
 						                 :second-config "second config"})
