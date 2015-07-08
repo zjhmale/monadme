@@ -22,6 +22,37 @@
 		<!--[if lt IE 9]>
 		<script src="lib/js/html5shiv.js"></script>
 		<![endif]-->
+
+		<!-- MathJax -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+            tex2jax: {
+              inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+              processEscapes: true
+            }
+          });
+        </script>
+
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+              tex2jax: {
+                skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+              }
+            });
+        </script>
+
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Queue(function() {
+                var all = MathJax.Hub.getAllJax(), i;
+                for(i=0; i < all.length; i += 1) {
+                    all[i].SourceElement().parentNode.className += ' has-jax';
+                }
+            });
+        </script>
+
+        <script type="text/javascript"
+            src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+        </script>
 	</head>
 	<body>
 		<div class="reveal">
@@ -250,6 +281,70 @@
 				</section>
 				<section data-markdown>
 					<script type="text/template">
+						## lift
+
+						```haskell
+						liftA2 :: (Applicative f) => (a -> b -> c) -> f a -> f b -> f c
+						liftA2 f a b = f <$> a <*> b
+						Prelude Control.Applicative> liftA2 (:) (Just 3) (Just [4])
+						Just [3,4]
+						--yet another perspective of list comprehension
+						Prelude Control.Applicative> liftA2 (*) [2,5,10] [8,10,11]
+						[16,20,22,40,50,55,80,100,110]
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## essential of Applicative Functor
+
+						可应用函子的本质就是可以把任意多元的一个函数应用到任意多个放在functor容器里的参数上 --by 千人
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						```haskell
+						Prelude> :t ($)
+						($) :: (a -> b) -> a -> b
+						Prelude> ($) (\x -> x + 1) 2
+						3
+						```
+
+						```haskell
+						Prelude Control.Applicative> let fmap0 = pure
+						Prelude Control.Applicative> :t fmap0
+						fmap0 :: Applicative f => a -> f a
+						Prelude Control.Applicative> let fmap1 = \f x -> pure f <*> x
+						Prelude Control.Applicative> :t fmap1
+						fmap1 :: Applicative f => (a -> b) -> f a -> f b
+						Prelude Control.Applicative> let fmap2 = \f x y -> pure f <*> x <*> y
+						Prelude Control.Applicative> :t fmap2
+						fmap2 :: Applicative f => (a1 -> a -> b) -> f a1 -> f a -> f b
+						Prelude Control.Applicative> let fmap3 = \h x y z -> fmap2 ($) (fmap2 h x y) z
+						Prelude Control.Applicative> :t fmap3
+						fmap3
+						  :: Applicative f =>
+						     (a2 -> a1 -> a -> b) -> f a2 -> f a1 -> f a -> f b
+						Prelude Control.Applicative> fmap0 3 :: Maybe Int
+						Just 3
+						Prelude Control.Applicative> fmap1 (+3) (Just 3)
+						Just 6
+						Prelude Control.Applicative> fmap2 (\x y -> x * y) (Just 3) (Just 3)
+						Just 9
+						Prelude Control.Applicative> fmap3 (\x y z -> x * y * z) (Just 3) (Just 3) (Just 3)
+						Just 27
+						```
+					</script>
+				</section>
+				<section>
+					$$fmap_{n} \; f \; a_{1} \; a_{2} \; ... \; a_{n} = fmap_{2} \; ($) \; ( \; fmap_{n-1} \; f \; a_{1} \; a_{2} \; ... \; a_{n-1} \; ) \; a_{n}$$
+
+					<br/>
+
+					<p>更多细节期待千人的新书 :)</p>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
 						## Applicative Functor Laws
 
 						```haskell
@@ -400,7 +495,7 @@
 						## Monad
 
 						```haskell
-						class Monad m where
+						class Applicative m => Monad m where
 						    return :: a -> m a
 						    (>>=) :: m a -> (a -> m b) -> m b
 						    (>>) :: m a -> m b -> m b
@@ -589,6 +684,42 @@
 						        (apply-shipping-costs shipping-rate)
 						        (apply-discount-code discount)
 						        (place))))
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						### Monad for the real word problem
+
+						to avoid nested if statement and nullpoint exceptions
+
+						```clojure
+						(defn trans
+						  [raw]
+						  (try
+						    (let [keyfrom (env :youdao-keyfrom)
+						          key (env :youdao-key)
+						          response (client/get (format "http://fanyi.youdao.com/openapi.do?keyfrom=%s&key=%s&type=data&doctype=json&version=1.1&q=%s" keyfrom key raw))
+						          domain (blue (get-in response [:cookies "SESSION_FROM_COOKIE" :domain]))
+						          body (json/read-str (:body response))
+						          basic (get body "basic")
+						          showphonetic (fn [cate]
+						                         (magenta (str cate (#(str "[ " % " ]") (-> basic (get (str cate "-phonetic")))))))
+						          usphonetic (showphonetic "us")
+						          ukphonetic (showphonetic "uk")
+						          translate (cyan (join " " (get body "translation")))
+						          explains (green (join "\n" (map #(str "- " %) (-> basic (get "explains")))))
+						          phrases (join "\n" (map-indexed (fn [idx itm]
+						                                            (format "%d. %s\n   %s" idx
+						                                                    (let [key (-> itm (get "key"))
+						                                                          regexraw (re-pattern (str "(?ix) " raw))
+						                                                          findraw (re-find regexraw key)]
+						                                                      (clojure.string/replace key (re-pattern findraw) (yellow findraw)))
+						                                                    (red (join "," (-> itm (get "value")))))) (get body "web")))]
+						      (println (format "%s -> %s %s %s ~ %s\n" raw translate usphonetic ukphonetic domain))
+						      (println (str explains "\n"))
+						      (println (str phrases)))
+						    (catch Exception e (println (magenta "something is wrong here")))))
 						```
 					</script>
 				</section>
@@ -927,6 +1058,30 @@
 						List[Int] = List(1, 2, 3)
 						scala> List(List(1, 2), List(3)).flatMap(x => List(x))
 						List[List[Int]] = List(List(1, 2), List(3))
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## lenses
+
+						handle nested functor data
+
+						```haskell
+						fmap . fmap :: (a -> b) -> f (f1 a) -> f (f1 b)
+
+						(.) :: (b -> c) -> (a -> b) -> a -> c
+						f . g = \x -> f (g x)
+
+						fmap . fmap = \func -> fmap (fmap func)
+						fmap . fmap func f (f1 a) = fmap (fmap func) f (f1 a)
+						```
+
+						```haskell
+						fmap . fmap (+3) Just (Just 3) = fmap (fmap (+3)) Just (Just 3)
+                               = Just (fmap (+3) (Just 3))
+                               = Just (Just (3 + 3))
+                               = Just (Just 6)
 						```
 					</script>
 				</section>
