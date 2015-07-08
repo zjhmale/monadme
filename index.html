@@ -594,7 +594,7 @@
 				</section>
 				<section data-markdown>
 					<script type="text/template">
-						## three useful Monads
+						## More Monads
 
 						* Writer Monad
 						* Reader Monad
@@ -711,6 +711,94 @@
 						(defn asks [f]
 						  (fn [env]
 						    (f env)))
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## some examples
+
+						```haskell
+						greeter :: Reader String String
+						greeter = do
+						    name <- ask
+						    return ("hello, " ++ name ++ "!")
+						Prelude> runReader greeter $ "adit"
+						"hello, adit!"
+						```
+
+						expand the reader monad
+
+						```haskell
+						greeter $ "adit"
+						ask >>= (\name -> return ("hello, " ++ name ++ "!"))
+						Reader $ \r -> runReader ((\name -> return ("hello, " ++ name ++ "!")) (runReader ask r)) r
+
+						runReader greeter $ "adit"
+						runReader (Reader $ \r -> runReader ((\name -> return ("hello, " ++ name ++ "!")) (runReader ask r)) r) "adit"
+						(\r -> runReader ((\name -> return ("hello, " ++ name ++ "!")) (runReader ask r)) r) "adit"
+						runReader ((\name -> return ("hello, " ++ name ++ "!")) (runReader ask "adit")) "adit"
+						runReader ((\name -> return ("hello, " ++ name ++ "!")) "adit") "adit"
+						runReader return ("hello, " ++ "adit" ++ "!") "adit"
+						(\_ -> ("hello, " ++ "adit" ++ "!")) "adit"
+						"hello, adit!"
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## use reader monad to fix real world problem
+
+						```clojure
+						(defn first-operation [env]
+						  (let [first-config (:first-config env)]
+						    (prn (format "first config %s" first-config))))
+
+						(defn second-operation [env]
+						  (let [second-config (:second-config env)
+						        env (ask)]
+						    (do
+						      (prn env)
+						      (prn (format "second config %s" second-config)))))
+
+						(defn entrypoint [env]
+						  (do
+						    (first-operation env)
+						    (second-operation env)
+						    (prn "continue the workflow!")))
+
+						(entrypoint {:first-config  "first config"
+						             :second-config "second config"})
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## use reader monad to fix real world problem
+
+						```clojure
+						(defn first-config-m []
+						  (do-m reader-m
+						        [first-config (asks :first-config)]
+						        (prn (format "first config %s" first-config))))
+
+						(defn second-config-m []
+						  (do-m reader-m
+						        [second-config (asks :second-config)
+						         env (ask)]
+						        (do
+						          ;;we just ask the value from reader monad and we get it!
+						          (prn env)
+						          (prn (format "second config %s" second-config)))))
+
+						(defn entrypoint-m []
+						  (do-m reader-m
+						        [_ (first-config-m)
+						         _ (second-config-m)]
+						        (prn "continue the workflow!")))
+
+						((entrypoint-m) {:first-config  "first config"
+						                 :second-config "second config"})
 						```
 					</script>
 				</section>
