@@ -649,7 +649,27 @@
 					<script type="text/template">
 						### Monad for the real word problem
 
-						to avoid nested if statement and nullpoint exceptions
+						to avoid nested if statement and NullPointerException
+
+						```clojure
+						(defn divide
+						  [top bottom]
+						  (if (zero? bottom)
+						    nil
+						    (/ top bottom)))
+
+						(do-m monad-maybe
+						      [x (divide 1 2)
+						       y (divide x 0)]
+						      (divide y 3))
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						### Monad for the real word problem
+
+						to avoid nested if statement and NullPointerException
 
 						```clojure
 						(defn place-order-use-bind
@@ -691,7 +711,7 @@
 					<script type="text/template">
 						### Monad for the real word problem
 
-						to avoid nested if statement and nullpoint exceptions
+						to avoid nested if statement and NullPointerException
 
 						```clojure
 						(defn trans
