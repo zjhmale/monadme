@@ -339,14 +339,15 @@
                                  b mb]
                     (+ a b)))
 
-((:>>= monad-maybe)
-  ma
-  (clojure.core/fn [a]
-    (clojure.core/->
-      mb
-      ((:>>= monad-maybe)
-        (clojure.core/fn [b]
-          ((:return monad-maybe) (+ a b)))))))
+(comment
+  ((:>>= monad-maybe)
+    ma
+    (clojure.core/fn [a]
+      (clojure.core/->
+        mb
+        ((:>>= monad-maybe)
+          (clojure.core/fn [b]
+            ((:return monad-maybe) (+ a b))))))))
 
 (m-add 1 2)
 (m-add 1 nil)
@@ -354,3 +355,16 @@
 ;;可以看到maybe monad可以进行类似控制流切换的作用 也就是某一个值是nil的时候直接做类似break的操作 也就是返回了不再去做后面的所有操作了
 ;;使用maybe monad的好处就是我们可以不再使用类似continuation这样晦涩的技术 而是利用monad来做控制流的切换 来对复杂的逻辑做判断逻辑的封装
 ;;从上面的宏扩展结果就可以看到加入ma是nil 那么就不会再继续进行计算了 直接返回了nil 如果不是 那就把ma传入给后续的单参函数 cps风格的computation
+
+(defn divide
+  [top bottom]
+  (if (zero? bottom)
+    nil
+    (/ top bottom)))
+
+;;can avoid nullpointer exception
+;;其实判断空指针的操作被隐藏在了bind内部 外部任然可以很流畅的将操作chain在一起
+(do-m monad-maybe
+      [x (divide 1 2)
+       y (divide x 0)]
+      (divide y 3))
