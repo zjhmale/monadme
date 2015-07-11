@@ -161,10 +161,3 @@ parse25 = eval "2*(3+4)"
 parse26 = eval "2 * (3 + 4)"
 parse27 = eval "2*3-4"
 parse28 = eval "-1"
-
-
-
-
-
-
-
