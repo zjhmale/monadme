@@ -4,6 +4,6 @@
 * applicative functor -> tought us that when our Functors themselves contain functions and we want them applied to the values contained in other Functors, Applicatives come to the rescue - and bring theirs friends pure and <*>.
 * monoid (_幺半群_) -> model a special type of relationship involving binary functions and their identity values.
 * monad (_单子_) -> computation carry with a context all the way going.
-* combinator -> A combinator is a function which builds program fragments from program fragments
+* combinator -> A combinator is a function which builds program fragments from program fragments (mpc)
 
 play with monad have fun :)
