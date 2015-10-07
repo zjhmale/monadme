@@ -7,13 +7,9 @@
 (defrecord List [value]
   Functor
   (fmap [functor f]
+    ;;因为clojure中的defprotocol中定义的func第一个参数都类似于oo语言中的this 所以第一个值必须是自身的引用 不能是一个func 所以与haskell中fmap参数顺序有点不一致
+    ;;clojure中的defrecord其实就是一个类似hashmap的结构 可以直接用参数的keyword为键去获取record中对应的值
     (List. (map f (:value functor)))))
-
-;;因为clojure中的defprotocol中定义的func第一个参数都类似于oo语言中的this 所以第一个值必须是自身的引用 不能是一个func 所以与haskell中fmap参数顺序有点不一致
-;;clojure中的defrecord其实就是一个类似hashmap的结构 可以直接用参数的keyword为键去获取record中对应的值
-
-(:value (let [list-functor (List. [1 2 3])]
-          (fmap list-functor #(* 2 %))))
 
 ;;functor laws
 
