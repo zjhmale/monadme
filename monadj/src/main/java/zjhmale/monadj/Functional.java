@@ -5,6 +5,8 @@ import zjhmale.monadj.function.Function2;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by zjh on 15/10/8.
@@ -37,14 +39,6 @@ public class Functional {
         }
     }
 
-    public static <A, B> A foldLeft(final Function2<A, B, A> f, final A a, final Collection<B> bc) {
-        A acc = a;
-        for (B b : bc) {
-            acc = f.apply(acc, b);
-        }
-        return acc;
-    }
-
     public static <A, B, C> Function<Tuple<A, B>, C> toFunction(final Function2<A, B, C> f) {
         return new Function<Tuple<A, B>, C>() {
             public C apply(Tuple<A, B> t) {
@@ -67,5 +61,41 @@ public class Functional {
                 return f.apply(a, b);
             }
         };
+    }
+
+    public static <A, B, C> Function<B, C> partialApply(final Function2<A, B, C> f, final A a) {
+        return new Function<B, C>() {
+            public C apply(B b) {
+                return f.apply(a, b);
+            }
+        };
+    }
+
+    public static <A, B> Function<Unit, B> lazyApply(final Function<A, B> f, final A a) {
+        return new Function<Unit, B>() {
+            public B apply(Unit unit) {
+                return f.apply(a);
+            }
+        };
+    }
+
+    //foldl :: Foldable t => (a -> b -> a) -> a -> t b -> a
+    public static <A, B> A foldLeft(final Function2<A, B, A> f, final A a, final Collection<B> bc) {
+        A acc = a;
+        for (B b : bc) {
+            acc = f.apply(acc, b);
+        }
+        return acc;
+    }
+
+    //foldr :: Foldable t => (a -> b -> b) -> b -> t a -> b
+    public static <A, B> B foldRight(final Function2<A, B, B> f, final B b, final Collection<A> ac) {
+        if (ac.size() == 0) {
+            return b;
+        } else {
+            List<A> reversed = new ArrayList<A>(ac);
+            Collections.reverse(reversed);
+            return Functional.foldLeft(Functional.flip(f), b, reversed);
+        }
     }
 }
