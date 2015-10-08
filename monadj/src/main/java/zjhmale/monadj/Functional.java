@@ -45,7 +45,7 @@ public class Functional {
         return acc;
     }
 
-    public static <A, B,C> Function<Tuple<A, B>, C> toFunction(final Function2<A, B, C> f) {
+    public static <A, B, C> Function<Tuple<A, B>, C> toFunction(final Function2<A, B, C> f) {
         return new Function<Tuple<A, B>, C>() {
             public C apply(Tuple<A, B> t) {
                 return f.apply(t.first(), t.second());
@@ -53,7 +53,7 @@ public class Functional {
         };
     }
 
-    public static <A, B, C> Function2<A, B, C> toFunction2(final  Function<Tuple<A, B>, C> f) {
+    public static <A, B, C> Function2<A, B, C> toFunction2(final Function<Tuple<A, B>, C> f) {
         return new Function2<A, B, C>() {
             public C apply(A a, B b) {
                 return f.apply(Tuple.tuple(a, b));
@@ -61,7 +61,7 @@ public class Functional {
         };
     }
 
-    public static <A,B,C> Function2<B, A, C> flip(final Function2<A, B, C> f) {
+    public static <A, B, C> Function2<B, A, C> flip(final Function2<A, B, C> f) {
         return new Function2<B, A, C>() {
             public C apply(B b, A a) {
                 return f.apply(a, b);
