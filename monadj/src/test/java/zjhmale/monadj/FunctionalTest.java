@@ -10,6 +10,11 @@ import static org.junit.Assert.assertTrue;
  */
 public class FunctionalTest {
     @Test
+    public void id() {
+        assertTrue((Integer) Identity.identity().apply(1) == 1);
+    }
+
+    @Test
     public void compose() {
         Function<Integer, String> itos = new Function<Integer, String>() {
             public String apply(Integer integer) {

@@ -10,7 +10,7 @@ public abstract class AbstractMonad<A> implements Monad<A> {
     //比如maybemonad继承了这个abstractmonad那么在调用liftM的时候就会调用maybemonad自己的bind函数和ret函数
     public <B> Monad<B> bind(final Monad<B> b) {
         return bind(new Function<A, Monad<B>>() {
-            public Monad<B> apply(A a) {
+            public Monad<B> apply(final A a) {
                 return b;
             }
         });
@@ -20,7 +20,7 @@ public abstract class AbstractMonad<A> implements Monad<A> {
     //liftM (\a -> a + 1) (Just 1) => Just 2
     public <B> Monad<B> liftM(final Function<A, B> f) {
         return bind(new Function<A, Monad<B>>() {
-            public Monad<B> apply(A a) {
+            public Monad<B> apply(final A a) {
                 return ret(f.apply(a));
             }
         });

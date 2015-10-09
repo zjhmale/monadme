@@ -43,7 +43,7 @@ public class Functional {
 
     public static <A, B, C> Function<Tuple<A, B>, C> toFunction(final Function2<A, B, C> f) {
         return new Function<Tuple<A, B>, C>() {
-            public C apply(Tuple<A, B> t) {
+            public C apply(final Tuple<A, B> t) {
                 return f.apply(t.first(), t.second());
             }
         };
@@ -51,7 +51,7 @@ public class Functional {
 
     public static <A, B, C> Function2<A, B, C> toFunction2(final Function<Tuple<A, B>, C> f) {
         return new Function2<A, B, C>() {
-            public C apply(A a, B b) {
+            public C apply(final A a, final B b) {
                 return f.apply(Tuple.tuple(a, b));
             }
         };
@@ -59,7 +59,7 @@ public class Functional {
 
     public static <A, B, C> Function2<B, A, C> flip(final Function2<A, B, C> f) {
         return new Function2<B, A, C>() {
-            public C apply(B b, A a) {
+            public C apply(final B b, final A a) {
                 return f.apply(a, b);
             }
         };
@@ -67,7 +67,7 @@ public class Functional {
 
     public static <A, B, C> Function<B, C> partialApply(final Function2<A, B, C> f, final A a) {
         return new Function<B, C>() {
-            public C apply(B b) {
+            public C apply(final B b) {
                 return f.apply(a, b);
             }
         };
@@ -75,7 +75,7 @@ public class Functional {
 
     public static <A, B> Function<Unit, B> lazyApply(final Function<A, B> f, final A a) {
         return new Function<Unit, B>() {
-            public B apply(Unit unit) {
+            public B apply(final Unit unit) {
                 return f.apply(a);
             }
         };
