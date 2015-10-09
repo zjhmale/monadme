@@ -14,7 +14,7 @@ import java.util.List;
 public class Functional {
 
     //f :: A -> B g :: B -> C g . f :: A -> C
-    public static <A, B, C> Function<A, C> compose(final Function<A, B> f, final Function<B, C> g) {
+    public static <A, B, C> Function<A, C> compose(final Function<B, C> g, final Function<A, B> f) {
         return new Function<A, C>() {
             public C apply(final A a) {
                 return g.apply(f.apply(a));
