@@ -68,7 +68,7 @@ public class Maybe<A> extends AbstractMonad<A> {
         if (isNothing()) {
             return Maybe.nothing();
         } else {
-            return Maybe.just(f.apply(this.value()));
+            return ret(f.apply(this.value()));
         }
     }
 }

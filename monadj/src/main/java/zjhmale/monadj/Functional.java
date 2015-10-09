@@ -2,6 +2,8 @@ package zjhmale.monadj;
 
 import zjhmale.monadj.function.Function;
 import zjhmale.monadj.function.Function2;
+import zjhmale.monadj.monad.common.Maybe;
+import zjhmale.monadj.predicate.Predicate;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -80,6 +82,7 @@ public class Functional {
     }
 
     //foldl :: Foldable t => (a -> b -> a) -> a -> t b -> a
+    //foldl (\ys y -> ys ++ [y]) [] [1,2,3] => [1,2,3]
     public static <A, B> A foldLeft(final Function2<A, B, A> f, final A a, final Collection<B> bc) {
         A acc = a;
         for (B b : bc) {
@@ -89,6 +92,7 @@ public class Functional {
     }
 
     //foldr :: Foldable t => (a -> b -> b) -> b -> t a -> b
+    //foldr (\y ys -> ys ++ [y]) [] [1,2,3] => [3,2,1]
     public static <A, B> B foldRight(final Function2<A, B, B> f, final B b, final Collection<A> ac) {
         if (ac.size() == 0) {
             return b;
@@ -97,5 +101,18 @@ public class Functional {
             Collections.reverse(reversed);
             return Functional.foldLeft(Functional.flip(f), b, reversed);
         }
+    }
+
+    public static <A> Maybe<A> find(final Predicate<A> f, final Collection<A> ac) {
+        for (A a : ac) {
+            if (f.apply(a)) {
+                return Maybe.just(a);
+            }
+        }
+        return Maybe.nothing();
+    }
+
+    public static <A> boolean exists(final Predicate<A> f, final Collection<A> ac) {
+        return Functional.find(f, ac).hasValue();
     }
 }

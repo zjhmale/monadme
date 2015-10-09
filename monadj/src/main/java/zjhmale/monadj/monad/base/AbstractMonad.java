@@ -16,6 +16,8 @@ public abstract class AbstractMonad<A> implements Monad<A> {
         });
     }
 
+    //:t liftM => Monad m => (a -> b) -> m a -> m b
+    //liftM (\a -> a + 1) (Just 1) => Just 2
     public <B> Monad<B> liftM(final Function<A, B> f) {
         return bind(new Function<A, Monad<B>>() {
             public Monad<B> apply(A a) {
