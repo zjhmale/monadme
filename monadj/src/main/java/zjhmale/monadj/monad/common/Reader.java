@@ -42,14 +42,17 @@ public class Reader<E, A> extends AbstractMonad<A> {
         return this.f;
     }
 
+    //ask = Reader id
     public Reader<A, A> ask() {
         return new Reader<A, A>((Function<A, A>) Identity.identity());
     }
 
+    //asks f = Reader f
     public Reader<E, A> asks(Function<E, A> f) {
         return new Reader<E, A>(f);
     }
 
+    //m >>= k = Reader $ \r -> runReader (k $ runReader m r) r
     public <B> Monad<B> bind(final Function<A, Monad<B>> f) {
         return new Reader<E, B>(
                 new Function<E, B>() {
@@ -59,6 +62,7 @@ public class Reader<E, A> extends AbstractMonad<A> {
                 });
     }
 
+    //return a = Reader $ \_ -> a
     public <B> Monad<B> ret(final B b) {
         return new Reader<E, B>(
                 new Function<E, B>() {
