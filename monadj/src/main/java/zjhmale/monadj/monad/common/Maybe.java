@@ -29,7 +29,7 @@ public class Maybe<A> extends AbstractMonad<A> {
     }
 
     public A value() {
-        if(this.a == null) {
+        if (this.a == null) {
             throw new IllegalStateException("has no value");
         } else {
             return this.a;
@@ -37,7 +37,7 @@ public class Maybe<A> extends AbstractMonad<A> {
     }
 
     public A getValue() {
-        if(this.a == null) {
+        if (this.a == null) {
             throw new IllegalStateException("has no value");
         } else {
             return this.a;

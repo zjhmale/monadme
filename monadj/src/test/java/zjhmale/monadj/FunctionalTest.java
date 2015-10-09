@@ -2,7 +2,8 @@ package zjhmale.monadj;
 
 import org.junit.Test;
 import zjhmale.monadj.function.Function;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by zjh on 15/10/9.

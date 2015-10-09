@@ -41,26 +41,26 @@ public class Either<A, B> extends AbstractMonad<B> {
         return this.a == null;
     }
 
-    public B right(){
-        if(this.b == null)
+    public B right() {
+        if (this.b == null)
             throw new IllegalStateException("is not right");
         return this.b;
     }
 
-    public B getRight(){
-        if(this.b == null)
+    public B getRight() {
+        if (this.b == null)
             throw new IllegalStateException("is not right");
         return this.b;
     }
 
-    public A left(){
-        if(this.a == null)
+    public A left() {
+        if (this.a == null)
             throw new IllegalStateException("is not left");
         return this.a;
     }
 
-    public A getLeft(){
-        if(this.a == null)
+    public A getLeft() {
+        if (this.a == null)
             throw new IllegalStateException("is not left");
         return this.a;
     }
