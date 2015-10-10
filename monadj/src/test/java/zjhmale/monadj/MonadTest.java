@@ -5,6 +5,9 @@ import zjhmale.monadj.function.Function;
 import zjhmale.monadj.monad.base.Monad;
 import zjhmale.monadj.monad.common.Either;
 import zjhmale.monadj.monad.common.Maybe;
+import zjhmale.monadj.monad.common.Reader;
+
+import javax.naming.Context;
 
 import static org.junit.Assert.assertTrue;
 
@@ -67,5 +70,64 @@ public class MonadTest {
         assertTrue(lll.getLeft().equals(l.getLeft()));
         assertTrue(rr.getRight() == 5);
         assertTrue(rrr.getRight() == 5);
+    }
+
+    @Test
+    public void readerMonad() {
+        final Reader<String, String> mock = Reader.reader(new Function<String, String>() {
+            public String apply(final String s) {
+                return s;
+            }
+        });
+        final Reader<String, Boolean> mock2 = Reader.reader(new Function<String, Boolean>() {
+            public Boolean apply(final String s) {
+                return true;
+            }
+        });
+
+        Reader<String, String> computation = (Reader<String, String>) mock.ask().bind(new Function<String, Monad<String>>() {
+            public Monad<String> apply(final String ctx) {
+                return mock.ret(ctx + ", Reader Monad");
+            }
+        });
+
+        Function<String, Reader<String, String>> computation1 = new Function<String, Reader<String, String>>() {
+            public Reader<String, String> apply(final String s) {
+                return (Reader<String, String>) mock.ask().bind(new Function<String, Monad<String>>() {
+                    public Monad<String> apply(final String ctx) {
+                        return mock.ret(ctx + ", " + s);
+                    }
+                });
+            }
+        };
+
+        Function<String, Reader<String, String>> computation2 = new Function<String, Reader<String, String>>() {
+            public Reader<String, String> apply(final String s) {
+                return (Reader<String, String>) mock.ask().bind(new Function<String, Monad<String>>() {
+                    public Monad<String> apply(final String ctx) {
+                         return mock.ret(ctx + ", " + s);
+                    }
+                });
+            }
+        };
+
+        Function<String, Monad<String>> computation3 = new Function<String, Monad<String>>() {
+            public Reader<String, String> apply(final String s) {
+                return (Reader<String, String>) mock2.asks(new Function<String, Boolean>() {
+                    public Boolean apply(final String ctx) {
+                        return ctx.equals("Hello");
+                    }
+                }).bind(new Function<Boolean, Monad<String>>() {
+                    public Monad<String> apply(Boolean aBoolean) {
+                        return mock.ret(s + (aBoolean ? "!" : "."));
+                    }
+                });
+            }
+        };
+
+        assertTrue(computation.runReader().apply("Hello").equals("Hello, Reader Monad"));
+        assertTrue(computation1.apply("Reader Monad").runReader().apply("Hello").equals("Hello, Reader Monad"));
+        assertTrue(((Reader<String, String>) computation2.apply("Reader Monad").bind(computation3)).runReader().apply("Hello").equals("Hello, Reader Monad!"));
+        assertTrue(((Reader<String, String>) computation2.apply("Reader Monad").bind(computation3)).runReader().apply("Bye").equals("Bye, Reader Monad."));
     }
 }
