@@ -115,15 +115,19 @@ public class List<A> extends AbstractMonoid<A> implements Functor<A> {
         }
 
         List<A> r = this;
-
+        //因为java是拷贝引用的值所以需要复制一份出来 防止修改原来的引用
+        List<A> rr = (List<A>) List.list(r.value(), List.empty());
+        List<A> rrr = rr;
         //先要找到最后一个尾指针然后把a给append上去
         while (!r.isEmptyTail()) {
             r = r.tail();
+            rrr.tail = (List<A>) List.list(r.value(), List.empty());
+            rrr = rrr.tail();
         }
 
-        r.tail = (List<A>) a;
+        rrr.tail = (List<A>) a;
 
-        return this;
+        return rr;
     }
 
     public <B> Functor<B> fmap(final Function<A, B> f) {
@@ -133,11 +137,12 @@ public class List<A> extends AbstractMonoid<A> implements Functor<A> {
 
         List<A> al = this;
         List<B> r = new List<B>(f.apply(al.value()), (List<B>) List.empty());
+        List<B> rr = r;
 
         while (!al.isEmptyTail()) {
             al = al.tail();
-            r.tail = new List<B>(f.apply(al.value()), r.tail);
-            r = r.tail();
+            rr.tail = new List<B>(f.apply(al.value()), rr.tail);
+            rr = rr.tail();
         }
 
         return r;

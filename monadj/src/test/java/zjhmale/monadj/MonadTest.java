@@ -7,8 +7,6 @@ import zjhmale.monadj.monad.common.Either;
 import zjhmale.monadj.monad.common.Maybe;
 import zjhmale.monadj.monad.common.Reader;
 
-import javax.naming.Context;
-
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -105,7 +103,7 @@ public class MonadTest {
             public Reader<String, String> apply(final String s) {
                 return (Reader<String, String>) mock.ask().bind(new Function<String, Monad<String>>() {
                     public Monad<String> apply(final String ctx) {
-                         return mock.ret(ctx + ", " + s);
+                        return mock.ret(ctx + ", " + s);
                     }
                 });
             }

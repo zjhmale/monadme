@@ -20,7 +20,7 @@ public abstract class AbstractMonoid<A> implements Monoid<A> {
 
     public Monoid<A> mconcat(final Collection<Monoid<A>> ac) {
         return Functional.foldLeft(new Function2<Monoid<A>, Monoid<A>, Monoid<A>>() {
-            public Monoid<A> apply(Monoid<A> a , Monoid<A> b) {
+            public Monoid<A> apply(Monoid<A> a, Monoid<A> b) {
                 return a.mappend(b);
             }
         }, this.mempty(), ac);
